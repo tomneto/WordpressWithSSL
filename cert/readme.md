@@ -102,3 +102,4 @@
     openssl pkcs12 -in localhost.crt -clcerts -nokeys -out C:/tmp/pem/CA.pem
     openssl pkcs12 -in localhost.crt -nocerts -nodes -out C:/tmp/pem/CA.key
 
+#### 8. Copy the generated .pem and .key to cert folder, so your docker will load up the files
