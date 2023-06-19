@@ -1,4 +1,4 @@
-<img src="https://seeklogo.com/images/W/wordpress-logo-9F351E1870-seeklogo.com.png"></img>
+<img align="center" height=50 src="https://seeklogo.com/images/W/wordpress-logo-9F351E1870-seeklogo.com.png"></img>
 
 
  ## In order to execute this project, you must install Docker, and generate a SSL certificate (following the readme at cert folder);
