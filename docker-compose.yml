@@ -10,26 +10,43 @@ services:
       - MYSQL_DATABASE=wordpress
     volumes: 
       - dbdata:/var/lib/mysql
-
   wordpress:
-    restart: always
+    image: wordpress:5-fpm-alpine
+    #command: bash -c 
+    #  - mkdir -p /var/www/html/wp-content/plugins
+    #  - mkdir -p /var/www/html/wp-content/uploads
+    #  - chown -R www-data:www-data /var/www
+    #  - find /var/www/ -type d -exec chmod 0755 {} \;
+    #  - find /var/www/ -type f -exec chmod 644 {} \;
+    depends_on:
+      - db
     container_name: wordpress
-    image: wordpress:latest # https://hub.docker.com/_/wordpress/
-    ports:
-      - "8000:80"
+    restart: always
     volumes:
-      - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
-      - ./wp-app:/var/www/html # Full wordpress project
-      #- ./plugin-name/trunk/:/var/www/html/wp-content/plugins/plugin-name # Plugin development
-      #- ./theme-name/trunk/:/var/www/html/wp-content/themes/theme-name # Theme development
+      - ./wordpress:/var/www/html
     env_file: .env
     environment:
       - WORDPRESS_DB_HOST=db:3306
       - WORDPRESS_DB_USER=$MYSQL_USER
       - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
       - WORDPRESS_DB_NAME=wordpress
+  webserver:
     depends_on:
-      - db
+      - wordpress
+    image: nginx:1.15.12-alpine
+    container_name: webserver
+    restart: always
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_EMAIL="letsencrypt@${VIRTUAL_HOST}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./nginx-conf/:/etc/nginx/conf.d
+      - ./cert/:/etc/ssl
 volumes:
   wordpress:
   dbdata:
