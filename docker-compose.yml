@@ -3,7 +3,7 @@ services:
   db:
     image: mysql:8.0
     container_name: db
-    restart: unless-stopped
+    restart: always
     command: '--default-authentication-plugin=mysql_native_password --pid-file /var/lib/mysql/mysqld.pid --sql_mode='
     env_file: .env
     environment:
@@ -12,13 +12,18 @@ services:
       - dbdata:/var/lib/mysql
   wordpress:
     image: wordpress:5-fpm-alpine
+    #command: bash -c 
+    #  - mkdir -p /var/www/html/wp-content/plugins
+    #  - mkdir -p /var/www/html/wp-content/uploads
+    #  - chown -R www-data:www-data /var/www
+    #  - find /var/www/ -type d -exec chmod 0755 {} \;
+    #  - find /var/www/ -type f -exec chmod 644 {} \;
     depends_on:
       - db
     container_name: wordpress
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./wordpress:/var/www/html
-    #  - /path/to/repo/myTheme/:/var/www/html/wp-content/themes/myTheme
     env_file: .env
     environment:
       - WORDPRESS_DB_HOST=db:3306
@@ -30,7 +35,11 @@ services:
       - wordpress
     image: nginx:1.15.12-alpine
     container_name: webserver
-    restart: unless-stopped
+    restart: always
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_EMAIL="letsencrypt@${VIRTUAL_HOST}"
     ports:
       - "80:80"
       - "443:443"
@@ -41,9 +50,3 @@ services:
 volumes:
   wordpress:
   dbdata:
-networks:
-  app-network:
-    config:
-      - subnet: 10.5.0.0/16
-        gateway: 10.5.0.1
-
