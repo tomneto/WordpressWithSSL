@@ -10,6 +10,8 @@ services:
       - MYSQL_DATABASE=wordpress
     volumes: 
       - dbdata:/var/lib/mysql
+    expose:
+      - "3306:3306"
   wordpress:
     image: wordpress:5-fpm-alpine
     #command: bash -c 
